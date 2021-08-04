@@ -158,6 +158,10 @@ class CMStorages(Storage):
         corpus = self._get_corpus_info_from_remote_path(remote_path)
         return self.stream_corpus_manager(corpus.get("id"), corpus.get("format"), buffer_size)
 
+    def stream_bitext(self, remote_path, buffer_size=1024):
+        corpus = self._get_corpus_info_from_remote_path(remote_path)
+        return self.stream_corpus_manager(corpus.get("id"), '', buffer_size)
+
     def push_corpus_manager(self, local_path, remote_path, corpus_id, user_data):
 
         if local_path.endswith(".txt"):
@@ -370,7 +374,10 @@ class CMStorages(Storage):
                 'directory': parentDirectory,
                 'accountId': self.account_id
             }
-            response = requests.get(self.host_url + '/corpus/list', params=data)
+            try:
+                response = requests.get(self.host_url + '/corpus/list', params=data)
+            except Exception as e:
+                return e
             if "directories" in response.json():
                 if directoryArray[-1] in response.json()["directories"]:
                     return True
